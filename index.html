@@ -392,14 +392,22 @@
 				<div class="col-lg-8">
 					<div class="subscription-form">
 						<h3 class="d-flex align-items-center"><span class="me-1"><img src="images/envelope-outline.svg"
-									alt="Image" class="img-fluid"></span><span>Subscribe to Newsletter</span></h3>
+									alt="Image" class="img-fluid"></span><span>Subscríbete para recibir noticias</span></h3>
 
-						<form id="formulario" action="#" class="row g-3">
+						<form id="formulario" action="#" class="row g-3 d-flex flex-row mb-4">
 							<div class="col-auto">
-								<input id="nombre-form" type="text" class="form-control" placeholder="Enter your name">
+								<input id="nombre-form" type="text" class="form-control" placeholder="Enter your name" required>
 							</div>
 							<div class="col-auto">
-								<input id="correo-form" type="email" class="form-control" placeholder="Enter your email">
+								<input id="correo-form" type="email" class="form-control" placeholder="Enter your email" required>
+							</div>
+							<div>
+								<h3>Seleccione su tema de interés:</h3>
+								<select id="interes-form" class="form-select" name="country">
+									<option value="kpop">K-POP</option>
+									<option value="Kdramas">K-DRAMAS</option>
+									<option value="kbeauty">K-BEAUTY</option>
+								  </select>
 							</div>
 							<div class="col-auto">
 								<button id="enviar-form" class="btn btn-primary">
