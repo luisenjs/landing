@@ -30,6 +30,7 @@ let loaded = (eventLoaded) => {
         console.log(datos);
       })
       .catch(error => console.error(error))
+    mostrarIntereses(obtenerDatos());
   });
 }
 
@@ -51,7 +52,18 @@ async function obtenerDatos() {
     let conteo = interesTotales.has(interes)?interesTotales.get(interes)+1:1;
     interesTotales.set(interes,conteo);
   }
-  console.log(interesTotales);
+  mostrarIntereses(interesTotales)
+  return interesTotales
 }
 
 obtenerDatos();
+
+function mostrarIntereses(interestsMap) {
+  const interestsContainer = document.getElementById('intereses-container');
+  let htmlContent = '<ul>';
+  interestsMap.forEach((count, interest) => {
+      htmlContent += `<li>${interest}: ${count} veces</li>`;
+  });
+  htmlContent += '</ul>';
+  interestsContainer.innerHTML = htmlContent;
+}
