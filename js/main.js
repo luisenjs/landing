@@ -1,69 +1,96 @@
-let loaded = (eventLoaded) => {
-  let myform = document.getElementById("formulario");
-  myform.addEventListener('submit', (eventSubmit) => {
-    eventSubmit.preventDefault();
-    let nombre = document.getElementById("nombre-form").value;
-    let correo = document.getElementById("correo-form").value;
-    let interes = document.getElementById("interes-form").value;
-    if (nombre.length == 0) {
-      alert("Ingrese su nombre por favor");
-      return;
-    }
-    if (correo.length == 0) {
-      alert("Ingrese un correo por favor");
-      return;
-    }
-    const datos = {
-      nombre: nombre,
-      correo: correo,
-      interes: interes
-    }
-    fetch("https://dawm-82af5-default-rtdb.firebaseio.com/coleccion.json", {
+document.addEventListener("DOMContentLoaded", () => {
+  const form = document.getElementById("formulario");
+  form.addEventListener("submit", handleFormSubmit);
+  obtenerDatos();
+});
+
+async function handleFormSubmit(event) {
+  event.preventDefault();
+  const nombre = document.getElementById("nombre-form").value;
+  const correo = document.getElementById("correo-form").value;
+  const interes = document.getElementById("interes-form").value;
+
+  if (!nombre || !correo || interes === "none") {
+    alert("Complete todos los campos y seleccione un interés válido");
+    return;
+  }
+
+  const datos = { nombre, correo, interes };
+
+  try {
+    await fetch("https://dawm-82af5-default-rtdb.firebaseio.com/coleccion.json", {
       method: "POST",
       body: JSON.stringify(datos),
-      headers: {
-        "Content-Type": "application/json"
-      }
-    })
-      .then(respuesta => respuesta.json())
-      .then(datos => {
-        console.log(datos);
-      })
-      .catch(error => console.error(error))
-    mostrarIntereses(obtenerDatos());
-  });
-}
+      headers: { "Content-Type": "application/json" }
+    });
 
-window.addEventListener("DOMContentLoaded", loaded);
+    nombreInput.value = "";
+    correoInput.value = "";
+    interesInput.value = "none";
+
+  } catch (error) {
+    console.error(error);
+  }
+  
+  obtenerDatos();
+}
 
 async function obtenerDatos() {
   const url = "https://dawm-82af5-default-rtdb.firebaseio.com/coleccion.json";
-  const respuesta = await fetch(url);
-  debugger;
-  if (!respuesta.ok) {
-    console.error("Error:", respuesta.status);
-    return;
-  }
-  const datos = await respuesta.json();
-  let interesTotales = new Map();
-  for (var key in datos) {
-    let elementos = datos[key];
-    let interes = elementos["interes"];
-    let conteo = interesTotales.has(interes)?interesTotales.get(interes)+1:1;
-    interesTotales.set(interes,conteo);
-  }
-  mostrarIntereses(interesTotales)
-  return interesTotales
-}
 
-obtenerDatos();
+  try {
+    const respuesta = await fetch(url);
+    if (!respuesta.ok) {
+      console.error("Error:", respuesta.status);
+      return;
+    }
+
+    const datos = await respuesta.json();
+    const interesTotales = new Map();
+    const correosUnicos = new Set();
+
+    for (const key in datos) {
+      const { interes, correo } = datos[key];
+      correosUnicos.add(correo);
+      interesTotales.set(interes, (interesTotales.get(interes) || 0) + 1);
+    }
+
+    interesTotales.set("usuariosTotales", correosUnicos.size);
+    mostrarIntereses(interesTotales);
+  } catch (error) {
+    console.error(error);
+  }
+}
 
 function mostrarIntereses(interestsMap) {
-  const interestsContainer = document.getElementById('intereses-container');
-  let htmlContent = '<ul>';
+  const mappings = {
+    kpop: "intereskpop",
+    kdrama: "intereskdrama",
+    kbeauty: "intereskbeauty",
+    usuariosTotales: "usuariostotales"
+  };
+
   interestsMap.forEach((count, interest) => {
-      htmlContent += `<li>${interest}: ${count} veces</li>`;
+    const elementId = mappings[interest];
+    if (elementId) {
+      const element = document.getElementById(elementId);
+      if (element) {
+        element.textContent = count;
+      }
+    }
   });
-  htmlContent += '</ul>';
-  interestsContainer.innerHTML = htmlContent;
 }
+
+$(document).ready(function() {
+  $(window).on('scroll', function() {
+      var scrollPos = $(window).scrollTop();
+      $('ul.custom-navbar-nav li a').each(function() {
+          var currLink = $(this);
+          var refElement = $(currLink.attr("href"));
+          if (refElement.position().top <= scrollPos && refElement.position().top + refElement.height() > scrollPos) {
+              $('ul.custom-navbar-nav li a').removeClass("active");
+              currLink.addClass("active");
+          }
+      });
+  });
+});
